@@ -36,6 +36,19 @@ ComplexNo *fourier_transform(double *array_in, int num_samples)
 	return array_out;
 }
 
+double *fourier_power(ComplexNo *fourier_array, int num_samples)
+{
+	double *output_array = (double *)calloc(num_samples, sizeof(*output_array));
+	int i;
+
+	for (i = 0; i < num_samples; i++)
+	{
+		output_array[i] = complex_magnitude_squared(fourier_array[i]);
+	}
+
+	return output_array;
+}
+
 void fft_1(void)
 {
 	double sample_array[5] = { 0, 1, 0, -1, 0};
@@ -98,7 +111,7 @@ void print_ft(double *ft_frequencies, ComplexNo *ft, int num_samples)
 	}
 }
 
-void print_ft_to_csv(char *filename, double dt, double *sample_array, double *sample_frequencies, ComplexNo *sample_ft, int num_samples)
+void print_ft_to_csv(char *filename, double dt, double *sample_array, double *sample_frequencies, ComplexNo *sample_ft, double *sample_power, int num_samples)
 {
 	FILE *fp = fopen(filename, "w+");
 	int i;
@@ -108,7 +121,7 @@ void print_ft_to_csv(char *filename, double dt, double *sample_array, double *sa
 	for (i = 0; i < num_samples; i++)
 	{
 		fprintf(fp, "%f, %f, %f, %f, %f, %f\n", dt * (double)i, sample_array[i], sample_frequencies[i], 
-				sample_ft[i].re, sample_ft[i].im, 0.0);
+				sample_ft[i].re, sample_ft[i].im, sample_power[i]);
 	}	
 }
 
@@ -121,29 +134,39 @@ void fft_2(void)
 	double *sample_array = generate_sine(1, f, dt, 0, num_samples);
 	double *sample_frequencies = generate_fourier_frequencies(dt, num_samples);
 	ComplexNo *sample_ft = fourier_transform(sample_array, num_samples);
+	double *sample_power = fourier_power(sample_ft, num_samples);
 
 	print_ft(sample_frequencies, sample_ft, num_samples);
-	print_ft_to_csv("fft_2.csv", dt, sample_array, sample_frequencies, sample_ft, num_samples);
+	print_ft_to_csv("fft_2.csv", dt, sample_array, sample_frequencies, sample_ft, sample_power, num_samples);
 	free(sample_array);
 	free(sample_frequencies);
 	free(sample_ft);
+	free(sample_power);
 }
 
-void do_sine_ft(double A, double fsamp, double f, double dt, double ph, int num_samples) 
+void do_sine_ft(char *filename, double A, double fsamp, double f, double dt, double ph, int num_samples) 
 {
 	double *sample_array = generate_sine(A, f, dt, ph, num_samples);
 	double *sample_frequencies = generate_fourier_frequencies(dt, num_samples);
 	ComplexNo *sample_ft = fourier_transform(sample_array, num_samples);
+	double *sample_power = fourier_power(sample_ft, num_samples);
 
 	print_ft(sample_frequencies, sample_ft, num_samples);
+	print_ft_to_csv(filename, dt, sample_array, sample_frequencies, sample_ft, sample_power, num_samples);
 	free(sample_array);
 	free(sample_frequencies);
 	free(sample_ft);
+	free(sample_power);
 }
 
 void fft_3(void)
 {
-	do_sine_ft(1, 1, 0.2, 1, M_PI / 2.0, 50);
+	do_sine_ft("fft_3.csv", 1, 1, 0.2, 1, M_PI / 2.0, 50);
+}
+
+void fft_4(void)
+{
+	do_sine_ft("fft_4.csv", 1, 1, 0.2123, 1, 0, 50);
 }
 
 int main()
@@ -151,6 +174,7 @@ int main()
 	fft_1();
 	fft_2();
 	fft_3();
+	fft_4();
 
 	return 0;
 }
