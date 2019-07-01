@@ -1,11 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
-
-typedef struct ComplexNo{
-	double re;
-	double im;
-} ComplexNo;
+#include "fft.h"
 
 double complex_magnitude_squared(ComplexNo num_in)
 {
