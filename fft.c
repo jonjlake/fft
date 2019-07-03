@@ -141,6 +141,29 @@ void fft_2(void)
 	free(sample_power);
 }
 
+void calculate_ft_arrays(FourierData *p_fourier_data)
+{
+	p_fourier_data->sample_frequencies = generate_fourier_frequencies(p_fourier_data->dt, 
+			p_fourier_data->num_samples);
+	p_fourier_data->sample_ft = fourier_transform(p_fourier_data->sample_array,
+			p_fourier_data->num_samples);
+	p_fourier_data->sample_power = fourier_power(p_fourier_data->sample_ft, 
+			p_fourier_data->num_samples);
+}
+
+void destroy_fourier_data_arrays(FourierData *p_fourier_data)
+{
+/*	if (NULL != p_fourier_data->sample_array)
+	{
+		free(p_fourier_data->sample_array);
+		p_fourier_data->sample_array = NULL;
+*/
+	FREE_AND_NULL(p_fourier_data->sample_array);
+	FREE_AND_NULL(p_fourier_data->sample_frequencies);
+	FREE_AND_NULL(p_fourier_data->sample_ft);
+	FREE_AND_NULL(p_fourier_data->sample_power);
+}
+
 void do_sine_ft(char *filename, double A, double fsamp, double f, double dt, double ph, int num_samples) 
 {
 	double *sample_array = generate_sine(A, f, dt, ph, num_samples);
@@ -166,13 +189,19 @@ void fft_4(void)
 	do_sine_ft("fft_4.csv", 1, 1, 0.2123, 1, 0, 50);
 }
 
-int main()
+void test_function()
 {
 	fft_1();
 	fft_2();
 	fft_3();
 	fft_4();
+}
 
+/*
+int main()
+{
+	test_function();
 	return 0;
 }
+*/
 
